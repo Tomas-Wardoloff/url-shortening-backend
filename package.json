@@ -1,0 +1,35 @@
+{
+  "name": "url-shortening-service",
+  "version": "1.0.0",
+  "description": "RESTful API that allows users to shorten long URLs",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "build": "rimraf dist && npx tsc",
+    "predev": "npm run build",
+    "dev": "concurrently \"npx tsc -w\" \"nodemon dist/server.js\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tomas-Wardoloff/url-shortening-service.git"
+  },
+  "author": "Tomas Wardoloff",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Tomas-Wardoloff/url-shortening-service/issues"
+  },
+  "homepage": "https://github.com/Tomas-Wardoloff/url-shortening-service#readme",
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.4",
+    "concurrently": "^9.1.2",
+    "nodemon": "^3.1.9",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.4.1",
+    "express": "^4.21.2",
+    "prisma": "^6.4.1"
+  }
+}
