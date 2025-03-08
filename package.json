@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/Tomas-Wardoloff/url-shortening-service#readme",
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/express": "^5.0.0",
     "@types/node": "^22.13.4",
     "concurrently": "^9.1.2",
@@ -29,6 +30,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.4.1",
+    "bcryptjs": "^3.0.2",
     "express": "^4.21.2",
     "prisma": "^6.4.1"
   }
