@@ -72,4 +72,23 @@ async function login(email: string, password: string) {
   };
 }
 
-export { signup, login };
+async function logout(email: string, token: string) {
+  const user = await userRepository.getOne(email);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const activeToken = await tokenRepository.getActiveToken(user.id);
+  if (!activeToken) {
+    throw new Error("User already logged out");
+  }
+
+  const isValidToken = await bcrypt.compare(token, activeToken.hashedToken);
+  if (!isValidToken) {
+    throw new Error("Invalid token");
+  }
+
+  await tokenRepository.update(activeToken.id, { revoked: true }); // revoke active token
+}
+
+export { signup, login, logout };
