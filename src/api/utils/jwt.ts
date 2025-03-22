@@ -14,7 +14,7 @@ function generateToken(payload: { id: number }, type: "access" | "refresh") {
 
 function verifyToken(token: string) {
   if (!process.env.JWT_SECRET) {
-    throw new Error("JWT_SECRET is not defined");
+    throw new Error("Access secret is not defined");
   }
   try {
     return jwt.verify(token, process.env.JWT_SECRET);
