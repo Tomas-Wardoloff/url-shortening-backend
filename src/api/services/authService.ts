@@ -1,9 +1,11 @@
 import bcrypt from "bcrypt";
 
 import UserRepository from "../repositories/userRepository.js";
+import TokenRepository from "../repositories/tokenRepository.js";
 import { generateToken } from "../utils/jwt.js";
 
 const userRepository = new UserRepository();
+const tokenRepository = new TokenRepository();
 
 async function signup(
   firstName: string,
@@ -25,15 +27,49 @@ async function signup(
     hashedPassword
   );
 
-  const token = generateToken({ id: newUser.id });
-
   return {
     user: {
-      id: newUser.id,
+      firstName: newUser.firstName,
+      lastName: newUser.lastName,
       email: newUser.email,
     },
-    token,
   };
 }
 
-export { signup };
+async function login(email: string, password: string) {
+  const user = await userRepository.getOne(email);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const isValidPassword = await bcrypt.compare(password, user.password);
+  if (!isValidPassword) {
+    throw new Error("Invalid password");
+  }
+
+  const activeToken = await tokenRepository.getActiveToken(user.id);
+  if (activeToken) {
+    activeToken.revoked = true;
+    await tokenRepository.update(activeToken.id, activeToken); // revoke active token
+  }
+
+  const accessToken = generateToken({ id: user.id }, "access");
+  const refreshToken = generateToken({ id: user.id }, "refresh");
+
+  await tokenRepository.create(user.id, refreshToken); // create new refresh token
+
+  await userRepository.update(user.id, { lastLogin: new Date() }); // update login date
+
+  return {
+    user: {
+      id: user.id,
+      email: user.email,
+    },
+    tokens: {
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+    },
+  };
+}
+
+export { signup, login };
