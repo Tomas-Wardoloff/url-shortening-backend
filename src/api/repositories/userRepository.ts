@@ -1,5 +1,7 @@
 import prisma from "../config/prisma.js";
 
+import { User } from ".prisma/client";
+
 class UserRepository {
   async getAll() {
     return await prisma.user.findMany();
@@ -25,7 +27,12 @@ class UserRepository {
     });
   }
 
-  async update() {}
+  async update(userId: number, userData: Partial<User>) {
+    return await prisma.user.update({
+      where: { id: userId },
+      data: userData,
+    });
+  }
 }
 
 export default UserRepository;
