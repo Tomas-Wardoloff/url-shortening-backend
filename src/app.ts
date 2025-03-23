@@ -1,8 +1,9 @@
 import express from "express";
 
-import authRouter from "./api/routers/authRouter.js";
+import AuthRouter from "./api/routers/authRouter.js";
 
 const app = express();
+const authRouter = new AuthRouter().getRouter();
 
 app.use(express.json());
 

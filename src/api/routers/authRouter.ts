@@ -1,18 +1,34 @@
 import { Router } from "express";
 
 import { authMiddleware } from "../middlewares/authMiddleware.js";
-import {
-  signupController,
-  loginController,
-  logoutController,
-  refreshController,
-} from "../controllers/authController.js";
+import AuthCotroller from "../controllers/authController.js";
 
-const authRouter = Router();
+class AuthRouter {
+  private router = Router();
+  private authController = new AuthCotroller();
 
-authRouter.post("/signup", signupController);
-authRouter.post("/login", loginController);
-authRouter.post("/logout", authMiddleware, logoutController);
-authRouter.post("/refresh-token", authMiddleware, refreshController);
+  constructor() {
+    this.initializeRoutes();
+  }
 
-export default authRouter;
+  private initializeRoutes() {
+    this.router.post("/signup", this.authController.signupController);
+    this.router.post("/login", this.authController.loginController);
+    this.router.post(
+      "/logout",
+      authMiddleware,
+      this.authController.logoutController
+    );
+    this.router.post(
+      "/refresh-token",
+      authMiddleware,
+      this.authController.refreshController
+    );
+  }
+
+  public getRouter() {
+    return this.router;
+  }
+}
+
+export default AuthRouter;
