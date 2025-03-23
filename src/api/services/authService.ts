@@ -14,9 +14,7 @@ async function signup(
   password: string
 ) {
   const existingUser = await userRepository.getOne(email);
-  if (existingUser) {
-    throw new Error("User already exists");
-  }
+  if (existingUser) throw new Error("User already exists");
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -38,14 +36,10 @@ async function signup(
 
 async function login(email: string, password: string) {
   const user = await userRepository.getOne(email);
-  if (!user) {
-    throw new Error("User not found");
-  }
+  if (!user) throw new Error("User not found");
 
   const isValidPassword = await bcrypt.compare(password, user.password);
-  if (!isValidPassword) {
-    throw new Error("Invalid password");
-  }
+  if (!isValidPassword) throw new Error("Invalid password");
 
   const activeToken = await tokenRepository.getActiveToken(user.id);
   if (activeToken) {
@@ -56,7 +50,7 @@ async function login(email: string, password: string) {
   const accessToken = generateToken({ id: user.id }, "access");
   const refreshToken = generateToken({ id: user.id }, "refresh");
 
-  await tokenRepository.create(user.id, refreshToken); // create new refresh token
+  await tokenRepository.create(user.id, refreshToken); // store new refresh token
 
   await userRepository.update(user.id, { lastLogin: new Date() }); // update login date
 
@@ -72,23 +66,30 @@ async function login(email: string, password: string) {
   };
 }
 
-async function logout(email: string, token: string) {
-  const user = await userRepository.getOne(email);
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  const activeToken = await tokenRepository.getActiveToken(user.id);
-  if (!activeToken) {
-    throw new Error("User already logged out");
-  }
+async function logout(userId: number, token: string) {
+  const activeToken = await tokenRepository.getActiveToken(userId);
+  if (!activeToken) throw new Error("User already logged out");
 
   const isValidToken = await bcrypt.compare(token, activeToken.hashedToken);
-  if (!isValidToken) {
-    throw new Error("Invalid token");
-  }
+  if (!isValidToken) throw new Error("Invalid token");
 
   await tokenRepository.update(activeToken.id, { revoked: true }); // revoke active token
 }
 
-export { signup, login, logout };
+async function refresh(userId: number, token: string) {
+  const activeToken = await tokenRepository.getActiveToken(userId);
+  if (!activeToken) throw new Error("Expired refresh token");
+
+  const isValidToken = await bcrypt.compare(token, activeToken.hashedToken);
+  if (!isValidToken) throw new Error("Invalid token");
+
+  const accessToken = generateToken({ id: userId }, "access");
+
+  return {
+    tokens: {
+      accessToken: accessToken,
+    },
+  };
+}
+
+export { signup, login, logout, refresh };
