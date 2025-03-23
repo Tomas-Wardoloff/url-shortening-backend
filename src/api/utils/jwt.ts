@@ -13,11 +13,11 @@ function generateToken(payload: { id: number }, type: "access" | "refresh") {
 }
 
 function verifyToken(token: string) {
-  if (!process.env.JWT_SECRET) {
+  if (!process.env.JWT_ACCESS_SECRET) {
     throw new Error("Access secret is not defined");
   }
   try {
-    return jwt.verify(token, process.env.JWT_SECRET);
+    return jwt.verify(token, process.env.JWT_ACCESS_SECRET);
   } catch (error) {
     throw new Error("Invalid token");
   }
