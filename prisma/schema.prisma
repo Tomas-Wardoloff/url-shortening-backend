@@ -32,7 +32,7 @@ model RefreshToken {
 model Links{
   id Int @id @default(autoincrement())
   url String
-  shortCode String @unique
+  shortCode String? @unique
   description String?
   userId Int
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
