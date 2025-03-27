@@ -17,6 +17,14 @@ class UrlRepository {
     });
   }
 
+  async getOne(shortCode: string) {
+    return await prisma.links.findFirst({
+      where: {
+        shortCode: shortCode,
+      },
+    });
+  }
+
   async update(
     shortCode: string,
     urlData: Partial<Omit<Links, "id" | "userId" | "createdAt">>
