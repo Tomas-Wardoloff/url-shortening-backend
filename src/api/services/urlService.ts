@@ -1,6 +1,5 @@
 import UrlRepository from "../repositories/urlRepository.js";
 
-import { Links } from "@prisma/client";
 import { generateShortCode, validateUrl } from "../utils/url.js";
 
 class UrlService {
@@ -20,6 +19,13 @@ class UrlService {
       description: updateUrl.description,
       createdAt: updateUrl.createdAt,
     };
+  }
+
+  public async redirectUrl(shortCode: string) {
+    const urlToRedirect = await this.urlRepository.getOne(shortCode);
+    if (!urlToRedirect) throw new Error("URL not found");
+
+    return urlToRedirect.url;
   }
 }
 
