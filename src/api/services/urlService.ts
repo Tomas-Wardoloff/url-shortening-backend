@@ -39,6 +39,8 @@ class UrlService {
 
     if (urlToUpdate.userId !== userId) throw new Error("Action not authorized"); // check if the user is the owner of the url to update
 
+    if (url && !validateUrl(url)) throw new Error("Invalid URL");
+
     const updatedUrl = await this.urlRepository.update(shortCode, {
       url: url,
       description: description,
