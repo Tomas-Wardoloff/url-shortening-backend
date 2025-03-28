@@ -1,5 +1,6 @@
 import UrlRepository from "../repositories/urlRepository.js";
 
+import { Links } from "@prisma/client";
 import { generateShortCode, validateUrl } from "../utils/url.js";
 
 class UrlService {
@@ -27,6 +28,35 @@ class UrlService {
 
     return urlToRedirect.url;
   }
+
+  public async updateUrl(
+    shortCode: string,
+    url?: string,
+    description?: string
+  ) {
+    const urlToUpdate = await this.urlRepository.getOne(shortCode);
+    if (!urlToUpdate) throw new Error("URL not found");
+
+    const data: Partial<Omit<Links, "id" | "userId" | "createdAt">> = {};
+    if (url) data["url"] = url;
+    if (description) data["description"] = description;
+
+    const updatedUrl = await this.urlRepository.update(shortCode, data);
+    return {
+      url: updatedUrl.url,
+      shortCode: updatedUrl.shortCode,
+      description: updatedUrl.description,
+      createdAt: updatedUrl.createdAt,
+    };
+  }
+
+  /*public async deleteUrl(shortCode: string) {
+    const urlToDelete = await this.urlRepository.getUserUrl(shortCode);
+  }
+
+  public async getUserUrls(userId: number) {}
+
+  public async getUrl(shortCode: string) {}*/
 }
 
 export default UrlService;
