@@ -1,6 +1,5 @@
 import UrlRepository from "../repositories/urlRepository.js";
 
-import { Links } from "@prisma/client";
 import { generateShortCode, validateUrl } from "../utils/url.js";
 
 class UrlService {
@@ -30,6 +29,7 @@ class UrlService {
   }
 
   public async updateUrl(
+    userId: number,
     shortCode: string,
     url?: string,
     description?: string
@@ -37,11 +37,12 @@ class UrlService {
     const urlToUpdate = await this.urlRepository.getOne(shortCode);
     if (!urlToUpdate) throw new Error("URL not found");
 
-    const data: Partial<Omit<Links, "id" | "userId" | "createdAt">> = {};
-    if (url) data["url"] = url;
-    if (description) data["description"] = description;
+    if (urlToUpdate.userId !== userId) throw new Error("Action not authorized"); // check if the user is the owner of the url to update
 
-    const updatedUrl = await this.urlRepository.update(shortCode, data);
+    const updatedUrl = await this.urlRepository.update(shortCode, {
+      url: url,
+      description: description,
+    });
     return {
       url: updatedUrl.url,
       shortCode: updatedUrl.shortCode,
@@ -49,14 +50,6 @@ class UrlService {
       createdAt: updatedUrl.createdAt,
     };
   }
-
-  /*public async deleteUrl(shortCode: string) {
-    const urlToDelete = await this.urlRepository.getUserUrl(shortCode);
-  }
-
-  public async getUserUrls(userId: number) {}
-
-  public async getUrl(shortCode: string) {}*/
 }
 
 export default UrlService;
