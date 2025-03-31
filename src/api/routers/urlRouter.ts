@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { authMiddleware } from "../middlewares/authMiddleware.js";
+import { authMiddleware } from "../middlewares/authenticationMiddleware.js";
 import UrlController from "../controllers/urlController.js";
 
 class UrlRouter {
