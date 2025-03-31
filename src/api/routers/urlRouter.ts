@@ -24,11 +24,7 @@ class UrlRouter {
       authMiddleware,
       this.urlController.deleteUrl
     );
-    this.router.get(
-      "/user/:userId",
-      authMiddleware,
-      this.urlController.getUserUrls
-    );
+    this.router.get("/user", authMiddleware, this.urlController.getUserUrls);
   }
 
   public getRouter() {
