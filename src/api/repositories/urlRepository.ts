@@ -25,6 +25,14 @@ class UrlRepository {
     });
   }
 
+  async delete(shortCode: string) {
+    return await prisma.links.delete({
+      where: {
+        shortCode: shortCode,
+      },
+    });
+  }
+
   async update(
     shortCode: string,
     urlData: Partial<Omit<Links, "id" | "userId" | "createdAt">>
@@ -36,8 +44,6 @@ class UrlRepository {
       data: urlData,
     });
   }
-
-  async getUserUrl(shortCode: string, userId: number) {}
 }
 
 export default UrlRepository;
