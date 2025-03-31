@@ -93,6 +93,22 @@ class UrlController {
       return response.status(500).json({ error: error.message });
     }
   };
+
+  public getUserUrls = async (
+    request: AuthRequest,
+    response: Response
+  ): Promise<any> => {
+    const user = request.user;
+
+    try {
+      const data = await this.urlService.getUserUrls(user.id);
+      return response
+        .status(200)
+        .json({ message: "All user urls", data: data });
+    } catch (error: any) {
+      return response.status(500).json({ error: error.message });
+    }
+  };
 }
 
 export default UrlController;
