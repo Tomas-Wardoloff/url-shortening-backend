@@ -1,7 +1,7 @@
 import { Response } from "express";
 
 import UrlService from "../services/urlService.js";
-import { AuthRequest } from "../middlewares/authMiddleware.js";
+import { AuthRequest } from "../middlewares/authenticationMiddleware.js";
 
 class UrlController {
   private urlService = new UrlService();
@@ -90,22 +90,6 @@ class UrlController {
         return response.status(404).json({ error: error.message });
       if (error.message === "Action not authorized")
         return response.status(403).json({ error: error.message });
-      return response.status(500).json({ error: error.message });
-    }
-  };
-
-  public getUserUrls = async (
-    request: AuthRequest,
-    response: Response
-  ): Promise<any> => {
-    const user = request.user;
-
-    try {
-      const data = await this.urlService.getUserUrls(user.id);
-      return response
-        .status(200)
-        .json({ message: "All user urls", data: data });
-    } catch (error: any) {
       return response.status(500).json({ error: error.message });
     }
   };
