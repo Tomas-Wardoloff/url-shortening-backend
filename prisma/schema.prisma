@@ -16,6 +16,7 @@ model User {
   lastLogin DateTime?
   password String
   limitLinks Int @default(30)
+  links Links[]
   tokens RefreshToken[]
 }
 
@@ -26,4 +27,18 @@ model RefreshToken {
   expiresAt DateTime
   userId Int
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Links{
+  id Int @id @default(autoincrement())
+  url String
+  shortCode String? @unique
+  description String?
+  userId Int
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  clicks Int @default(0)
+
+  @@index(shortCode)
+  @@index([userId])   
 }

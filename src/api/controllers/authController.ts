@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 
-import { AuthRequest } from "../middlewares/authMiddleware.js";
+import { AuthRequest } from "../middlewares/authenticationMiddleware.js";
 import AuthService from "../services/authService.js";
 
 class AuthController {
   private authService = new AuthService();
 
-  public signupController = async (
+  public signup = async (
     request: Request,
     response: Response
   ): Promise<any> => {
@@ -31,10 +31,7 @@ class AuthController {
     }
   };
 
-  public loginController = async (
-    request: Request,
-    response: Response
-  ): Promise<any> => {
+  public login = async (request: Request, response: Response): Promise<any> => {
     const { email, password } = request.body;
 
     if (!email || !password)
@@ -57,7 +54,7 @@ class AuthController {
     }
   };
 
-  public logoutController = async (
+  public logout = async (
     request: AuthRequest,
     response: Response
   ): Promise<any> => {
@@ -80,7 +77,7 @@ class AuthController {
     }
   };
 
-  public refreshController = async (
+  public refresh = async (
     request: AuthRequest,
     response: Response
   ): Promise<any> => {

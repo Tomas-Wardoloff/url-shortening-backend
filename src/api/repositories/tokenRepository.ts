@@ -4,7 +4,7 @@ import prisma from "../config/prisma.js";
 import { RefreshToken } from "@prisma/client";
 
 class TokenRepository {
-  async create(userId: number, token: string) {
+  public async create(userId: number, token: string) {
     const hashedToken = await bcrypt.hash(token, 10);
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 30);
@@ -18,7 +18,7 @@ class TokenRepository {
     });
   }
 
-  async getActiveToken(userId: number) {
+  public async getActiveToken(userId: number) {
     return await prisma.refreshToken.findFirst({
       where: {
         userId: userId,
@@ -30,7 +30,7 @@ class TokenRepository {
     });
   }
 
-  async update(tokenId: number, tokenData: Partial<RefreshToken>) {
+  public async update(tokenId: number, tokenData: Partial<RefreshToken>) {
     return await prisma.refreshToken.update({
       where: {
         id: tokenId,
