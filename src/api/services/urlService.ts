@@ -52,6 +52,16 @@ class UrlService {
       createdAt: updatedUrl.createdAt,
     };
   }
+
+  public async deleteUrl(userId: number, shortCode: string) {
+    const urlToDelete = await this.urlRepository.getOne(shortCode);
+    if (!urlToDelete) throw new Error("URL not found");
+
+    if (urlToDelete.userId !== userId) throw new Error("Action not authorized"); // check if the user is the owner of the url to delete
+
+    await this.urlRepository.delete(shortCode);
+    return;
+  }
 }
 
 export default UrlService;
