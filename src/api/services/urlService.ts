@@ -62,6 +62,19 @@ class UrlService {
     await this.urlRepository.delete(shortCode);
     return;
   }
+
+  public async getUserUrls(userId: number) {
+    const urls = await this.urlRepository.getUserUrl(userId);
+    return {
+      urls: urls.map((url) => ({
+        url: url.url,
+        shortCode: url.shortCode,
+        description: url.description,
+        createdAt: url.createdAt,
+        clicks: url.clicks,
+      })),
+    };
+  }
 }
 
 export default UrlService;
