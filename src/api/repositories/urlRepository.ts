@@ -44,6 +44,14 @@ class UrlRepository {
       data: urlData,
     });
   }
+
+  async getUserUrl(userId: number) {
+    return await prisma.links.findMany({
+      where: {
+        userId: userId,
+      },
+    });
+  }
 }
 
 export default UrlRepository;
