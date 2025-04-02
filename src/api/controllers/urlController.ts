@@ -11,18 +11,41 @@ class UrlController {
     response: Response
   ): Promise<any> => {
     const user = request.user;
-    const { url, description } = request.body;
+    const { url, description, customAlias } = request.body;
 
-    if (!url) {
-      return response.status(400).json({ error: "No URL provided" });
+    if (!url) return response.status(400).json({ error: "No URL provided" });
+
+    if (customAlias) {
+      if (customAlias.length > 16)
+        return response
+          .status(400)
+          .json({ error: "Custom alias must be less than 16 characters" });
+
+      if (customAlias.length < 4)
+        return response
+          .status(400)
+          .json({ error: "Custom alias must be at least 4 characters" });
+
+      if (customAlias.includes(" "))
+        return response
+          .status(400)
+          .json({ error: "Custom alias must not contain spaces" });
     }
+
     try {
-      const data = await this.urlService.shortenUrl(user.id, url, description);
+      const data = await this.urlService.shortenUrl(
+        user.id,
+        url,
+        description,
+        customAlias
+      );
       return response
         .status(201)
         .json({ message: "URL shortened", data: data });
     } catch (error: any) {
       if (error.message === "Invalid URL")
+        return response.status(400).json({ error: error.message });
+      else if (error.message === "Short code already exists")
         return response.status(400).json({ error: error.message });
       return response.status(500).json({ error: error.message });
     }
