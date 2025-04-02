@@ -18,6 +18,7 @@ model User {
   limitLinks Int @default(30)
   links Links[]
   tokens RefreshToken[]
+  tags Tags[]
 }
 
 model RefreshToken {
@@ -41,4 +42,14 @@ model Links{
 
   @@index(shortCode)
   @@index([userId])   
+}
+
+model Tags{
+  id Int @id @default(autoincrement())
+  name String @unique
+  createdAt DateTime @default(now())
+  creatorId Int 
+  creator User @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@index([creatorId])
 }
