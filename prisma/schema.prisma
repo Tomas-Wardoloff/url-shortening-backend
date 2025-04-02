@@ -39,6 +39,7 @@ model Links{
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   clicks Int @default(0)
+  tags TagsOnLinks[]
 
   @@index(shortCode)
   @@index([userId])   
@@ -50,6 +51,15 @@ model Tags{
   createdAt DateTime @default(now())
   creatorId Int 
   creator User @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  links TagsOnLinks[]
 
   @@index([creatorId])
+}
+
+model TagsOnLinks{
+  tagId Int
+  tag Tags @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  linkId Int
+  link Links @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  @@id([tagId, linkId])
 }
