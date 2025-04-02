@@ -30,6 +30,22 @@ class TagController {
       return response.status(500).json({ error: error.message });
     }
   };
+
+  public getUserTags = async (
+    request: AuthRequest,
+    response: Response
+  ): Promise<any> => {
+    const user = request.user;
+
+    try {
+      const data = await this.tagService.getUserTags(user.id);
+      return response
+        .status(202)
+        .json({ message: "All user tags", data: data });
+    } catch (error: any) {
+      return response.status(500).json({ error: error.message });
+    }
+  };
 }
 
 export default TagController;
