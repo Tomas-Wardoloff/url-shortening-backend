@@ -19,6 +19,22 @@ class TagRepository {
     });
   }
 
+  public async getOne(tagId: number) {
+    return await prisma.tags.findUnique({
+      where: {
+        id: tagId,
+      },
+    });
+  }
+
+  public async delete(tagId: number) {
+    return await prisma.tags.delete({
+      where: {
+        id: tagId,
+      },
+    });
+  }
+
   public async getUserTags(userId: number) {
     return await prisma.tags.findMany({
       where: {
