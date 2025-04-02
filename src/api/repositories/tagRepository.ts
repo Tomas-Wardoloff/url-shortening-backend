@@ -18,6 +18,14 @@ class TagRepository {
       },
     });
   }
+
+  public async getUserTags(userId: number) {
+    return await prisma.tags.findMany({
+      where: {
+        creatorId: userId,
+      },
+    });
+  }
 }
 
 export default TagRepository;
