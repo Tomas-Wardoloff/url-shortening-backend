@@ -46,6 +46,26 @@ class TagController {
       return response.status(500).json({ error: error.message });
     }
   };
+
+  public deleteTag = async (
+    request: AuthRequest,
+    response: Response
+  ): Promise<any> => {
+    const user = request.user;
+    const tagId = request.params.tagId;
+
+    if (isNaN(parseInt(tagId)))
+      return response.status(400).json({ error: "Invalid tag id" });
+
+    try {
+      await this.tagService.deleteTag(user.id, parseInt(tagId));
+      return response.status(204).json({ message: "Tag deleted" });
+    } catch (error: any) {
+      if (error.message === "Tag not found")
+        return response.status(404).json({ error: error.message });
+      return response.status(500).json({ error: error.message });
+    }
+  };
 }
 
 export default TagController;
