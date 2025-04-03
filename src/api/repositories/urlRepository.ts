@@ -34,12 +34,12 @@ class UrlRepository {
   }
 
   async update(
-    shortCode: string,
+    id: number,
     urlData: Partial<Omit<Links, "id" | "userId" | "createdAt">>
   ) {
     return await prisma.links.update({
       where: {
-        shortCode: shortCode,
+        id: id,
       },
       data: urlData,
     });
