@@ -42,6 +42,24 @@ class TagRepository {
       },
     });
   }
+
+  public async asingTagToUrl(tagId: number, urlId: number) {
+    return await prisma.tagsOnLinks.create({
+      data: {
+        tagId: tagId,
+        linkId: urlId,
+      },
+    });
+  }
+
+  public async isTagAssigned(tagId: number, urlId: number) {
+    return await prisma.tagsOnLinks.findFirst({
+      where: {
+        tagId: tagId,
+        linkId: urlId,
+      },
+    });
+  }
 }
 
 export default TagRepository;
