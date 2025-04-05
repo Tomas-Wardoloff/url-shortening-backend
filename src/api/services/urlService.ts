@@ -1,16 +1,17 @@
+import TagRepository from "../repositories/tagRepository.js";
 import UrlRepository from "../repositories/urlRepository.js";
-
 import { generateShortCode, validateUrl } from "../utils/url.js";
 
 class UrlService {
   private urlRepository = new UrlRepository();
+  private tagRepository = new TagRepository();
 
   public async shortenUrl(userId: number, url: string, description?: string) {
     if (!validateUrl(url)) throw new Error("Invalid URL");
 
     const newUrl = await this.urlRepository.create(url, userId, description); // create new url in the database
     const shortCode = generateShortCode(newUrl.id); // generate short code from the new url id
-    const updateUrl = await this.urlRepository.update(shortCode, {
+    const updateUrl = await this.urlRepository.update(newUrl.id, {
       shortCode: shortCode,
     });
     return {
@@ -41,7 +42,7 @@ class UrlService {
 
     if (url && !validateUrl(url)) throw new Error("Invalid URL");
 
-    const updatedUrl = await this.urlRepository.update(shortCode, {
+    const updatedUrl = await this.urlRepository.update(urlToUpdate.id, {
       url: url,
       description: description,
     });
@@ -74,6 +75,27 @@ class UrlService {
         clicks: url.clicks,
       })),
     };
+  }
+
+  public async asignTagToUrl(userId: number, shortCode: string, tagId: number) {
+    const existingUrl = await this.urlRepository.getOne(shortCode);
+    const existingTag = await this.tagRepository.getOne(tagId);
+
+    if (!existingUrl) throw new Error("URL not found");
+
+    if (!existingTag) throw new Error("Tag not found");
+
+    if (existingTag.creatorId !== userId || existingUrl.userId !== userId)
+      throw new Error("Action not authorized");
+
+    const isTagAssigned = await this.tagRepository.isTagAssigned(
+      tagId,
+      existingUrl.id
+    ); // check if the tag is already assigned to the url
+    if (isTagAssigned) throw new Error("Tag already assigned to this URL");
+
+    await this.tagRepository.asingTagToUrl(tagId, existingUrl.id);
+    return;
   }
 }
 
