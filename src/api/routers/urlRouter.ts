@@ -25,6 +25,11 @@ class UrlRouter {
       this.urlController.deleteUrl
     );
     this.router.get("/user", authMiddleware, this.urlController.getUserUrls);
+    this.router.post(
+      "/:shortCode/tag/:tagId",
+      authMiddleware,
+      this.urlController.asignTagToUrl
+    );
   }
 
   public getRouter() {

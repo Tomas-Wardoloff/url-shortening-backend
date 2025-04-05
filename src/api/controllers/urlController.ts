@@ -132,6 +132,32 @@ class UrlController {
       return response.status(500).json({ error: error.message });
     }
   };
+
+  public asignTagToUrl = async (
+    request: AuthRequest,
+    response: Response
+  ): Promise<any> => {
+    const user = request.user;
+    const { shortCode, tagId } = request.params;
+
+    if (isNaN(parseInt(tagId)))
+      return response.status(400).json({ error: "Invalid tag id" });
+
+    try {
+      await this.urlService.asignTagToUrl(user.id, shortCode, parseInt(tagId));
+      return response.status(200).json({ message: "Tag assigned to URL" });
+    } catch (error: any) {
+      if (
+        error.message === "URL not found" ||
+        error.message === "Tag not found" ||
+        error.message === "Tag already assigned to this URL"
+      )
+        return response.status(404).json({ error: error.message });
+      if (error.message === "Action not authorized")
+        return response.status(403).json({ error: error.message });
+      return response.status(500).json({ error: error.message });
+    }
+  };
 }
 
 export default UrlController;
