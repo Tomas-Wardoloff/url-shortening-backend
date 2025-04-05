@@ -6,11 +6,20 @@ class UrlService {
   private urlRepository = new UrlRepository();
   private tagRepository = new TagRepository();
 
-  public async shortenUrl(userId: number, url: string, description?: string) {
+  public async shortenUrl(
+    userId: number,
+    url: string,
+    description?: string,
+    customAlias?: string
+  ) {
     if (!validateUrl(url)) throw new Error("Invalid URL");
 
+    if (customAlias) {
+      const existingUrl = await this.urlRepository.getOne(customAlias);
+      if (existingUrl) throw new Error("Short code already exists"); // check if the short code already exists
+    }
     const newUrl = await this.urlRepository.create(url, userId, description); // create new url in the database
-    const shortCode = generateShortCode(newUrl.id); // generate short code from the new url id
+    const shortCode = customAlias || generateShortCode(newUrl.id); // generate short code from the new url id
     const updateUrl = await this.urlRepository.update(newUrl.id, {
       shortCode: shortCode,
     });
@@ -25,6 +34,10 @@ class UrlService {
   public async redirectUrl(shortCode: string) {
     const urlToRedirect = await this.urlRepository.getOne(shortCode);
     if (!urlToRedirect) throw new Error("URL not found");
+
+    await this.urlRepository.update(urlToRedirect.id, {
+      clicks: urlToRedirect.clicks + 1,
+    });
 
     return urlToRedirect.url;
   }
