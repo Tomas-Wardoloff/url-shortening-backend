@@ -29,7 +29,7 @@ function authMiddleware(
     next();
   } catch (error: any) {
     if (error.message === "Invalid token")
-      response.status(401).json(error.message);
+      response.status(401).json({ error: error.message });
     response.status(500).json({ error: error.message });
     return;
   }
