@@ -9,27 +9,31 @@ class UrlController {
   public shortenUrl = async (
     request: AuthRequest,
     response: Response
-  ): Promise<any> => {
+  ): Promise<void> => {
     const user = request.user;
     const { url, description, customAlias } = request.body;
 
-    if (!url) return response.status(400).json({ error: "No URL provided" });
+    if (!url) {
+      response.status(400).json({ error: "No URL provided" });
+      return;
+    }
 
     if (customAlias) {
       if (customAlias.length > 16)
-        return response
+        response
           .status(400)
           .json({ error: "Custom alias must be less than 16 characters" });
 
       if (customAlias.length < 4)
-        return response
+        response
           .status(400)
           .json({ error: "Custom alias must be at least 4 characters" });
 
       if (customAlias.includes(" "))
-        return response
+        response
           .status(400)
           .json({ error: "Custom alias must not contain spaces" });
+      return;
     }
 
     try {
@@ -39,31 +43,33 @@ class UrlController {
         description,
         customAlias
       );
-      return response
-        .status(201)
-        .json({ message: "URL shortened", data: data });
+      response.status(201).json({ message: "URL shortened", data: data });
+      return;
     } catch (error: any) {
       if (error.message === "Invalid URL")
-        return response.status(400).json({ error: error.message });
+        response.status(400).json({ error: error.message });
       else if (error.message === "Short code already exists")
-        return response.status(400).json({ error: error.message });
-      return response.status(500).json({ error: error.message });
+        response.status(400).json({ error: error.message });
+      response.status(500).json({ error: error.message });
+      return;
     }
   };
 
   public redirectUrl = async (
     request: AuthRequest,
     response: Response
-  ): Promise<any> => {
+  ): Promise<void> => {
     const { shortCode } = request.params;
 
     try {
       const url = await this.urlService.redirectUrl(shortCode);
-      return response.status(301).redirect(url);
+      response.status(301).redirect(url);
+      return;
     } catch (error: any) {
       if (error.message === "URL not found")
-        return response.status(404).json({ error: error.message });
-      return response.status(500).json({ error: error.message });
+        response.status(404).json({ error: error.message });
+      response.status(500).json({ error: error.message });
+      return;
     }
   };
 
@@ -76,8 +82,10 @@ class UrlController {
     const { shortCode } = request.params;
     const { url, description } = request.body;
 
-    if (!url && !description)
-      return response.status(400).json({ error: "No data provided" });
+    if (!url && !description) {
+      response.status(400).json({ error: "No data provided" });
+      return;
+    }
 
     try {
       const data = await this.urlService.updateUrl(
@@ -86,76 +94,84 @@ class UrlController {
         url,
         description
       );
-      return response.status(200).json({ message: "URL updated", data: data });
+      response.status(200).json({ message: "URL updated", data: data });
+      return;
     } catch (error: any) {
       if (error.mmessage === "URL not found")
-        return response.status(404).json({ error: error.message });
+        response.status(404).json({ error: error.message });
       else if (error.message === "Invalid URL")
-        return response.status(400).json({ error: error.message });
+        response.status(400).json({ error: error.message });
       else if (error.message === "Action not authorized")
-        return response.status(403).json({ error: error.message });
-      return response.status(500).json({ error: error.message });
+        response.status(403).json({ error: error.message });
+      response.status(500).json({ error: error.message });
+      return;
     }
   };
 
   public deleteUrl = async (
     request: AuthRequest,
     response: Response
-  ): Promise<any> => {
+  ): Promise<void> => {
     const user = request.user;
     const { shortCode } = request.params;
 
     try {
       await this.urlService.deleteUrl(user.id, shortCode);
-      return response.status(204).json({ message: "URL deleted" });
+      response.status(204).json({ message: "URL deleted" });
+      return;
     } catch (error: any) {
       if (error.message === "URL not found")
-        return response.status(404).json({ error: error.message });
+        response.status(404).json({ error: error.message });
       if (error.message === "Action not authorized")
-        return response.status(403).json({ error: error.message });
-      return response.status(500).json({ error: error.message });
+        response.status(403).json({ error: error.message });
+      response.status(500).json({ error: error.message });
+      return;
     }
   };
 
   public getUserUrls = async (
     request: AuthRequest,
     response: Response
-  ): Promise<any> => {
+  ): Promise<void> => {
     const user = request.user;
 
     try {
       const data = await this.urlService.getUserUrls(user.id);
-      return response
-        .status(200)
-        .json({ message: "All user urls", data: data });
+      response.status(200).json({ message: "All user urls", data: data });
+      return;
     } catch (error: any) {
-      return response.status(500).json({ error: error.message });
+      response.status(500).json({ error: error.message });
+      return;
     }
   };
 
   public asignTagToUrl = async (
     request: AuthRequest,
     response: Response
-  ): Promise<any> => {
+  ): Promise<void> => {
     const user = request.user;
     const { shortCode, tagId } = request.params;
 
-    if (isNaN(parseInt(tagId)))
-      return response.status(400).json({ error: "Invalid tag id" });
+    if (isNaN(parseInt(tagId))) {
+      response.status(400).json({ error: "Invalid tag id" });
+      return;
+    }
 
     try {
       await this.urlService.asignTagToUrl(user.id, shortCode, parseInt(tagId));
-      return response.status(200).json({ message: "Tag assigned to URL" });
+      response.status(200).json({ message: "Tag assigned to URL" });
+      return;
     } catch (error: any) {
       if (
         error.message === "URL not found" ||
         error.message === "Tag not found" ||
         error.message === "Tag already assigned to this URL"
       )
-        return response.status(404).json({ error: error.message });
+        response.status(404).json({ error: error.message });
       if (error.message === "Action not authorized")
-        return response.status(403).json({ error: error.message });
-      return response.status(500).json({ error: error.message });
+        response.status(403).json({ error: error.message });
+      response.status(500).json({ error: error.message });
+      return;
     }
   };
 }
