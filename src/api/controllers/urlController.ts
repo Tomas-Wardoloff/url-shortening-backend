@@ -19,21 +19,26 @@ class UrlController {
     }
 
     if (customAlias) {
-      if (customAlias.length > 16)
+      if (customAlias.length > 16) {
         response
           .status(400)
           .json({ error: "Custom alias must be less than 16 characters" });
+        return;
+      }
 
-      if (customAlias.length < 4)
+      if (customAlias.length < 4) {
         response
           .status(400)
           .json({ error: "Custom alias must be at least 4 characters" });
+        return;
+      }
 
-      if (customAlias.includes(" "))
+      if (customAlias.includes(" ")) {
         response
           .status(400)
           .json({ error: "Custom alias must not contain spaces" });
-      return;
+        return;
+      }
     }
 
     try {
