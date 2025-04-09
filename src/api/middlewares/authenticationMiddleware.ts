@@ -24,7 +24,7 @@ function authMiddleware(
   }
 
   try {
-    const payload = verifyToken(token, "access");
+    const payload = verifyToken(token);
     request.user = payload;
     next();
   } catch (error: any) {
