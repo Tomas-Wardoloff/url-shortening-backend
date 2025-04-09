@@ -16,7 +16,6 @@ model User {
   lastLogin DateTime?
   password String
   isVerified Boolean @default(false)
-  verificationToken String? @unique
   limitLinks Int @default(30)
   links Links[]
   tokens RefreshToken[]
