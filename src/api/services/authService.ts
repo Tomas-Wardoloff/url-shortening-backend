@@ -1,8 +1,9 @@
 import bcrypt from "bcrypt";
 
+import { generateToken } from "../utils/jwt.js";
+import { sendVerificationEmail } from "../utils/mail.js";
 import UserRepository from "../repositories/userRepository.js";
 import TokenRepository from "../repositories/tokenRepository.js";
-import { generateToken } from "../utils/jwt.js";
 
 class AuthService {
   private userRepository = new UserRepository();
@@ -25,6 +26,14 @@ class AuthService {
       email,
       hashedPassword
     );
+
+    const verificationToken = generateToken({ id: newUser.id }, "verification");
+
+    await this.userRepository.update(newUser.id, {
+      verificationToken: await bcrypt.hash(verificationToken, 10),
+    }); // store hashed verification token
+
+    await sendVerificationEmail(newUser.email, verificationToken);
 
     return {
       user: {
