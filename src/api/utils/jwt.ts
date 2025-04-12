@@ -28,8 +28,8 @@ function verifyToken(token: string): TokenPayload {
   }
   try {
     return jwt.verify(token, secret) as TokenPayload;
-  } catch (error) {
-    throw new Error("Invalid token");
+  } catch (error: any) {
+    throw new Error(error.message);
   }
 }
 
