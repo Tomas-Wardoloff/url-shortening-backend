@@ -44,6 +44,8 @@ class AuthService {
     const user = await this.userRepository.getOne(email);
     if (!user) throw new Error("Invalid credentials");
 
+    if (!user.isVerified) throw new Error("Email not verified");
+
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) throw new Error("Invalid credentials");
 
@@ -111,11 +113,20 @@ class AuthService {
       isVerified: true,
     });
 
-    return {
-      user: {
-        email: user.email,
-      },
-    };
+    return;
+  }
+
+  public async resendVerificationEmail(email: string) {
+    const user = await this.userRepository.getOne(email);
+    if (!user) throw new Error("User not found");
+
+    if (user.isVerified) throw new Error("User already verified");
+
+    const verificationToken = generateToken({ id: user.id }, "verification");
+
+    await sendVerificationEmail(user.email, verificationToken);
+
+    return;
   }
 }
 
