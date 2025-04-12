@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 
 import { generateToken, verifyToken } from "../utils/jwt.js";
-import { sendVerificationEmail } from "../utils/mail.js";
+import sendVerificationEmail from "../utils/emails.js";
 import UserRepository from "../repositories/userRepository.js";
 import TokenRepository from "../repositories/tokenRepository.js";
 
@@ -104,8 +104,8 @@ class AuthService {
 
     if (user.isVerified) throw new Error("User already verified");
 
-    const payload = verifyToken(token, "verification");
-    if (payload.id !== user.id) throw new Error("Invalid token");
+    const payload = verifyToken(token);
+    if (payload.id != user.id) throw new Error("Invalid token");
 
     await this.userRepository.update(user.id, {
       isVerified: true,
