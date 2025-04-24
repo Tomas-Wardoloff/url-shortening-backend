@@ -25,6 +25,11 @@ class AuthRouter {
       "/send-verification-email",
       this.authController.sendVerificationEmail
     );
+    this.router.post(
+      "/send-reset-password-email",
+      this.authController.sendResetPasswordEmail
+    );
+    this.router.post("/reset-password", this.authController.resetPassword);
   }
 
   public getRouter() {
