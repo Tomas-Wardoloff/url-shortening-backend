@@ -142,7 +142,7 @@ class AuthController {
     }
   };
 
-  public resendVerificationEmail = async (
+  public sendVerificationEmail = async (
     request: Request,
     response: Response
   ): Promise<void> => {
@@ -154,7 +154,7 @@ class AuthController {
     }
 
     try {
-      await this.authService.resendVerificationEmail(email);
+      await this.authService.sendVerificationEmail(email);
       response.status(200).json({ message: "Verification email sent" });
       return;
     } catch (error: any) {

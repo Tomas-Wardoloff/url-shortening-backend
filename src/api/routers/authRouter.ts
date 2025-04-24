@@ -21,9 +21,9 @@ class AuthRouter {
       this.authController.refresh
     );
     this.router.get("/verify-email", this.authController.verifyEmail);
-    this.router.get(
-      "/resend-verification-email",
-      this.authController.resendVerificationEmail
+    this.router.post(
+      "/send-verification-email",
+      this.authController.sendVerificationEmail
     );
   }
 

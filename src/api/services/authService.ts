@@ -116,7 +116,7 @@ class AuthService {
     return;
   }
 
-  public async resendVerificationEmail(email: string) {
+  public async sendVerificationEmail(email: string) {
     const user = await this.userRepository.getOne(email);
     if (!user) throw new Error("User not found");
 
