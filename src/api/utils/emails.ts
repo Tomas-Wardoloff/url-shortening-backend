@@ -14,7 +14,7 @@ async function sendVerificationEmail(userEmail: string, token: string) {
       template_variables: {
         email: `${userEmail}`,
         verificationLink: `http://localhost:3000/api/auth/verify-email?email=${userEmail}&token=${token}`,
-        year: "2025",
+        year: new Date().getFullYear(),
       },
     });
   } catch (error: any) {
