@@ -1,8 +1,9 @@
 import bcrypt from "bcrypt";
 
+import { generateToken, verifyToken } from "../utils/jwt.js";
+import sendVerificationEmail from "../utils/emails.js";
 import UserRepository from "../repositories/userRepository.js";
 import TokenRepository from "../repositories/tokenRepository.js";
-import { generateToken } from "../utils/jwt.js";
 
 class AuthService {
   private userRepository = new UserRepository();
@@ -26,6 +27,10 @@ class AuthService {
       hashedPassword
     );
 
+    const verificationToken = generateToken({ id: newUser.id }, "verification");
+
+    await sendVerificationEmail(newUser.email, verificationToken);
+
     return {
       user: {
         firstName: newUser.firstName,
@@ -37,10 +42,12 @@ class AuthService {
 
   public async login(email: string, password: string) {
     const user = await this.userRepository.getOne(email);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new Error("Invalid credentials");
+
+    if (!user.isVerified) throw new Error("Email not verified");
 
     const isValidPassword = await bcrypt.compare(password, user.password);
-    if (!isValidPassword) throw new Error("Invalid password");
+    if (!isValidPassword) throw new Error("Invalid credentials");
 
     const activeToken = await this.tokenRepository.getActiveToken(user.id);
     if (activeToken) {
@@ -91,6 +98,35 @@ class AuthService {
         accessToken: accessToken,
       },
     };
+  }
+
+  public async verifyEmail(email: string, token: string) {
+    const user = await this.userRepository.getOne(email);
+    if (!user) throw new Error("User not found");
+
+    if (user.isVerified) throw new Error("User already verified");
+
+    const payload = verifyToken(token);
+    if (payload.id != user.id) throw new Error("Invalid token");
+
+    await this.userRepository.update(user.id, {
+      isVerified: true,
+    });
+
+    return;
+  }
+
+  public async sendVerificationEmail(email: string) {
+    const user = await this.userRepository.getOne(email);
+    if (!user) throw new Error("User not found");
+
+    if (user.isVerified) throw new Error("User already verified");
+
+    const verificationToken = generateToken({ id: user.id }, "verification");
+
+    await sendVerificationEmail(user.email, verificationToken);
+
+    return;
   }
 }
 
