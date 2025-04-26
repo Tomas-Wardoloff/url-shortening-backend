@@ -1,5 +1,7 @@
 import express from "express";
+import swaggerUi from "swagger-ui-express";
 
+import specs from "./api/config/swagger.js";
 import UrlRouter from "./api/routers/urlRouter.js";
 import AuthRouter from "./api/routers/authRouter.js";
 import TagRouter from "./api/routers/tagRouter.js";
@@ -10,6 +12,11 @@ const urlRouter = new UrlRouter().getRouter();
 const tagRouter = new TagRouter().getRouter();
 
 app.use(express.json());
+app.use(
+  "/api/docs",
+  swaggerUi.serve,
+  swaggerUi.setup(specs, { explorer: true })
+);
 
 app.use("/api/auth", authRouter);
 app.use("/api/url", urlRouter);
