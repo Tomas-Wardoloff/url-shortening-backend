@@ -9,61 +9,71 @@ class TagController {
   public createTag = async (
     request: AuthRequest,
     response: Response
-  ): Promise<any> => {
+  ): Promise<void> => {
     const user = request.user;
     const { name } = request.body;
 
-    if (!name)
-      return response.status(400).json({ message: "Name is required" });
+    if (!name) {
+      response.status(400).json({ message: "Name is required" });
+      return;
+    }
 
-    if (name.length > 20)
-      return response
+    if (name.length > 20) {
+      response
         .status(400)
         .json({ error: "Tag name must be less than 20 characters" });
+      return;
+    }
 
     try {
       const data = await this.tagService.createTag(user.id, name);
-      return response.status(201).json({ message: "Tag created", data: data });
+      response.status(201).json({ message: "Tag created", data: data });
+      return;
     } catch (error: any) {
       if (error.message === "Tag already exists")
-        return response.status(409).json({ error: error.message });
-      return response.status(500).json({ error: error.message });
+        response.status(409).json({ error: error.message });
+      else response.status(500).json({ error: error.message });
+      return;
     }
   };
 
   public getUserTags = async (
     request: AuthRequest,
     response: Response
-  ): Promise<any> => {
+  ): Promise<void> => {
     const user = request.user;
 
     try {
       const data = await this.tagService.getUserTags(user.id);
-      return response
-        .status(202)
-        .json({ message: "All user tags", data: data });
+      response.status(202).json({ message: "All user tags", data: data });
+      return;
     } catch (error: any) {
-      return response.status(500).json({ error: error.message });
+      response.status(500).json({ error: error.message });
+      return;
     }
   };
 
   public deleteTag = async (
     request: AuthRequest,
     response: Response
-  ): Promise<any> => {
+  ): Promise<void> => {
     const user = request.user;
     const tagId = request.params.tagId;
 
-    if (isNaN(parseInt(tagId)))
-      return response.status(400).json({ error: "Invalid tag id" });
+    if (isNaN(parseInt(tagId))) {
+      response.status(400).json({ error: "Invalid tag id" });
+      return;
+    }
 
     try {
       await this.tagService.deleteTag(user.id, parseInt(tagId));
-      return response.status(204).json({ message: "Tag deleted" });
+      response.status(204).json({ message: "Tag deleted" });
+      return;
     } catch (error: any) {
       if (error.message === "Tag not found")
-        return response.status(404).json({ error: error.message });
-      return response.status(500).json({ error: error.message });
+        response.status(404).json({ error: error.message });
+      else response.status(500).json({ error: error.message });
+      return;
     }
   };
 }
