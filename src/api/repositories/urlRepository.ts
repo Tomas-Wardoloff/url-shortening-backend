@@ -52,6 +52,14 @@ class UrlRepository {
       },
     });
   }
+
+  async currentLinkCount(userId: number) {
+    return await prisma.links.count({
+      where: {
+        userId: userId,
+      },
+    });
+  }
 }
 
 export default UrlRepository;
