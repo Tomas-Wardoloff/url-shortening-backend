@@ -10,7 +10,7 @@ class TagController {
     request: AuthRequest,
     response: Response
   ): Promise<void> => {
-    const user = request.user;
+    const userId = request.payload.userId;
     const { name } = request.body;
 
     if (!name) {
@@ -26,7 +26,7 @@ class TagController {
     }
 
     try {
-      const data = await this.tagService.createTag(user.id, name);
+      const data = await this.tagService.createTag(userId, name);
       response.status(201).json({ message: "Tag created", data: data });
       return;
     } catch (error: any) {
@@ -41,10 +41,10 @@ class TagController {
     request: AuthRequest,
     response: Response
   ): Promise<void> => {
-    const user = request.user;
+    const userId = request.payload.userId;
 
     try {
-      const data = await this.tagService.getUserTags(user.id);
+      const data = await this.tagService.getUserTags(userId);
       response.status(202).json({ message: "All user tags", data: data });
       return;
     } catch (error: any) {
@@ -57,7 +57,7 @@ class TagController {
     request: AuthRequest,
     response: Response
   ): Promise<void> => {
-    const user = request.user;
+    const userId = request.payload.userId;
     const tagId = request.params.tagId;
 
     if (isNaN(parseInt(tagId))) {
@@ -66,7 +66,7 @@ class TagController {
     }
 
     try {
-      await this.tagService.deleteTag(user.id, parseInt(tagId));
+      await this.tagService.deleteTag(userId, parseInt(tagId));
       response.status(204).json({ message: "Tag deleted" });
       return;
     } catch (error: any) {

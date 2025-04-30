@@ -1,10 +1,12 @@
 import TagRepository from "../repositories/tagRepository.js";
 import UrlRepository from "../repositories/urlRepository.js";
+import UserRepository from "../repositories/userRepository.js";
 import { generateShortCode, validateUrl } from "../utils/url.js";
 
 class UrlService {
   private urlRepository = new UrlRepository();
   private tagRepository = new TagRepository();
+  private userRepository = new UserRepository();
 
   public async shortenUrl(
     userId: number,
@@ -12,6 +14,13 @@ class UrlService {
     description?: string,
     customAlias?: string
   ) {
+    const user = await this.userRepository.getUserById(userId);
+    if (!user) throw new Error("User not found");
+
+    const currentLinkCount = await this.urlRepository.currentLinkCount(userId);
+    if (currentLinkCount >= user.limitLinks)
+      throw new Error("Limit of links reached");
+
     if (!validateUrl(url)) throw new Error("Invalid URL");
 
     if (customAlias) {

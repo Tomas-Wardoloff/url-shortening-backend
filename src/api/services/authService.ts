@@ -15,7 +15,7 @@ class AuthService {
     email: string,
     password: string
   ) {
-    const existingUser = await this.userRepository.getOne(email);
+    const existingUser = await this.userRepository.getUserByEmail(email);
     if (existingUser) throw new Error("User already exists");
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -41,7 +41,7 @@ class AuthService {
   }
 
   public async login(email: string, password: string) {
-    const user = await this.userRepository.getOne(email);
+    const user = await this.userRepository.getUserByEmail(email);
     if (!user) throw new Error("Invalid credentials");
 
     if (!user.isVerified) throw new Error("Email not verified");
@@ -101,13 +101,13 @@ class AuthService {
   }
 
   public async verifyEmail(email: string, token: string) {
-    const user = await this.userRepository.getOne(email);
+    const user = await this.userRepository.getUserByEmail(email);
     if (!user) throw new Error("User not found");
 
     if (user.isVerified) throw new Error("User already verified");
 
     const payload = verifyToken(token);
-    if (payload.id != user.id) throw new Error("Invalid token");
+    if (payload.userId != user.id) throw new Error("Invalid token");
 
     await this.userRepository.update(user.id, {
       isVerified: true,
@@ -117,7 +117,7 @@ class AuthService {
   }
 
   public async sendVerificationEmail(email: string) {
-    const user = await this.userRepository.getOne(email);
+    const user = await this.userRepository.getUserByEmail(email);
     if (!user) throw new Error("User not found");
 
     if (user.isVerified) throw new Error("User already verified");

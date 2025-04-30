@@ -66,7 +66,7 @@ class AuthController {
     request: AuthRequest,
     response: Response
   ): Promise<void> => {
-    const user = request.user;
+    const userId = request.payload.userId;
     const { refreshToken } = request.body;
 
     if (!refreshToken) {
@@ -75,7 +75,7 @@ class AuthController {
     }
 
     try {
-      await this.authService.logout(user.id, refreshToken);
+      await this.authService.logout(userId, refreshToken);
       response.status(200).json({ message: "User logged out" });
       return;
     } catch (error: any) {
@@ -92,7 +92,7 @@ class AuthController {
     request: AuthRequest,
     response: Response
   ): Promise<void> => {
-    const user = request.user;
+    const userId = request.payload.userId;
     const { refreshToken } = request.body;
 
     if (!refreshToken) {
@@ -101,7 +101,7 @@ class AuthController {
     }
 
     try {
-      const data = await this.authService.refresh(user.id, refreshToken);
+      const data = await this.authService.refresh(userId, refreshToken);
       response.status(200).json({ message: "Token refreshed", data: data });
       return;
     } catch (error: any) {

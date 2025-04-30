@@ -10,7 +10,7 @@ class UrlController {
     request: AuthRequest,
     response: Response
   ): Promise<void> => {
-    const user = request.user;
+    const userId = request.payload.userId;
     const { url, description, customAlias } = request.body;
 
     if (!url) {
@@ -43,7 +43,7 @@ class UrlController {
 
     try {
       const data = await this.urlService.shortenUrl(
-        user.id,
+        userId,
         url,
         description,
         customAlias
@@ -55,6 +55,10 @@ class UrlController {
         response.status(400).json({ error: error.message });
       else if (error.message === "Short code already exists")
         response.status(400).json({ error: error.message });
+      else if (error.message === "Limit of links reached")
+        response.status(403).json({ error: error.message });
+      else if (error.message === "User not found")
+        response.status(404).json({ error: error.message });
       else response.status(500).json({ error: error.message });
       return;
     }
@@ -83,7 +87,7 @@ class UrlController {
     response: Response
   ): Promise<any> => {
     // To update the original url and the description
-    const user = request.user;
+    const userId = request.payload.userId;
     const { shortCode } = request.params;
     const { url, description } = request.body;
 
@@ -94,7 +98,7 @@ class UrlController {
 
     try {
       const data = await this.urlService.updateUrl(
-        user.id,
+        userId,
         shortCode,
         url,
         description
@@ -117,11 +121,11 @@ class UrlController {
     request: AuthRequest,
     response: Response
   ): Promise<void> => {
-    const user = request.user;
+    const userId = request.payload.userId;
     const { shortCode } = request.params;
 
     try {
-      await this.urlService.deleteUrl(user.id, shortCode);
+      await this.urlService.deleteUrl(userId, shortCode);
       response.status(204).json({ message: "URL deleted" });
       return;
     } catch (error: any) {
@@ -138,10 +142,10 @@ class UrlController {
     request: AuthRequest,
     response: Response
   ): Promise<void> => {
-    const user = request.user;
+    const userId = request.payload.userId;
 
     try {
-      const data = await this.urlService.getUserUrls(user.id);
+      const data = await this.urlService.getUserUrls(userId);
       response.status(200).json({ message: "All user urls", data: data });
       return;
     } catch (error: any) {
@@ -154,7 +158,7 @@ class UrlController {
     request: AuthRequest,
     response: Response
   ): Promise<void> => {
-    const user = request.user;
+    const userId = request.payload.userId;
     const { shortCode, tagId } = request.params;
 
     if (isNaN(parseInt(tagId))) {
@@ -163,7 +167,7 @@ class UrlController {
     }
 
     try {
-      await this.urlService.asignTagToUrl(user.id, shortCode, parseInt(tagId));
+      await this.urlService.asignTagToUrl(userId, shortCode, parseInt(tagId));
       response.status(200).json({ message: "Tag assigned to URL" });
       return;
     } catch (error: any) {
