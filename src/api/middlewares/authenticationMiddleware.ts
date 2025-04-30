@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../utils/jwt.js";
 
 interface AuthRequest extends Request {
-  user?: any;
+  payload?: any;
 }
 
 function authMiddleware(
@@ -25,7 +25,7 @@ function authMiddleware(
 
   try {
     const payload = verifyToken(token);
-    request.user = payload;
+    request.payload = payload;
     next();
   } catch (error: any) {
     if (error.message === "Invalid token")
