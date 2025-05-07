@@ -1,9 +1,14 @@
 import bcrypt from "bcrypt";
 
-import { generateToken, verifyToken } from "../utils/jwt.js";
 import sendVerificationEmail from "../utils/emails.js";
+import { generateToken, verifyToken } from "../utils/jwt.js";
 import UserRepository from "../repositories/userRepository.js";
 import TokenRepository from "../repositories/tokenRepository.js";
+import {
+  ConflictError,
+  NotFoundError,
+  UnauthorizedError,
+} from "../utils/error.js";
 
 class AuthService {
   private userRepository = new UserRepository();
@@ -16,7 +21,7 @@ class AuthService {
     password: string
   ) {
     const existingUser = await this.userRepository.getUserByEmail(email);
-    if (existingUser) throw new Error("User already exists");
+    if (existingUser) throw new ConflictError("User already exists");
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -42,12 +47,12 @@ class AuthService {
 
   public async login(email: string, password: string) {
     const user = await this.userRepository.getUserByEmail(email);
-    if (!user) throw new Error("Invalid credentials");
+    if (!user) throw new UnauthorizedError("Invalid credentials");
 
-    if (!user.isVerified) throw new Error("Email not verified");
+    if (!user.isVerified) throw new UnauthorizedError("Email not verified");
 
     const isValidPassword = await bcrypt.compare(password, user.password);
-    if (!isValidPassword) throw new Error("Invalid credentials");
+    if (!isValidPassword) throw new UnauthorizedError("Invalid credentials");
 
     const activeToken = await this.tokenRepository.getActiveToken(user.id);
     if (activeToken) {
@@ -76,20 +81,20 @@ class AuthService {
 
   public async logout(userId: number, token: string) {
     const activeToken = await this.tokenRepository.getActiveToken(userId);
-    if (!activeToken) throw new Error("User already logged out");
+    if (!activeToken) throw new ConflictError("User already logged out");
 
     const isValidToken = await bcrypt.compare(token, activeToken.hashedToken);
-    if (!isValidToken) throw new Error("Invalid token");
+    if (!isValidToken) throw new UnauthorizedError("Invalid token");
 
     await this.tokenRepository.update(activeToken.id, { revoked: true }); // revoke active token
   }
 
   public async refresh(userId: number, token: string) {
     const activeToken = await this.tokenRepository.getActiveToken(userId);
-    if (!activeToken) throw new Error("Expired refresh token");
+    if (!activeToken) throw new UnauthorizedError("Expired refresh token");
 
     const isValidToken = await bcrypt.compare(token, activeToken.hashedToken);
-    if (!isValidToken) throw new Error("Invalid token");
+    if (!isValidToken) throw new UnauthorizedError("Invalid token");
 
     const accessToken = generateToken({ id: userId }, "access");
 
@@ -102,12 +107,12 @@ class AuthService {
 
   public async verifyEmail(email: string, token: string) {
     const user = await this.userRepository.getUserByEmail(email);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new NotFoundError("User not found");
 
-    if (user.isVerified) throw new Error("User already verified");
+    if (user.isVerified) throw new ConflictError("User already verified");
 
     const payload = verifyToken(token);
-    if (payload.userId != user.id) throw new Error("Invalid token");
+    if (payload.id != user.id) throw new UnauthorizedError("Invalid token");
 
     await this.userRepository.update(user.id, {
       isVerified: true,
@@ -118,9 +123,9 @@ class AuthService {
 
   public async sendVerificationEmail(email: string) {
     const user = await this.userRepository.getUserByEmail(email);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new NotFoundError("User not found");
 
-    if (user.isVerified) throw new Error("User already verified");
+    if (user.isVerified) throw new ConflictError("User already verified");
 
     const verificationToken = generateToken({ id: user.id }, "verification");
 
