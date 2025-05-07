@@ -1,6 +1,8 @@
 import { Response } from "express";
 
+import { TokenPayload } from "../utils/jwt.js";
 import UrlService from "../services/urlService.js";
+import { BadRequestError } from "../utils/error.js";
 import { AuthRequest } from "../middlewares/authenticationMiddleware.js";
 
 class UrlController {
@@ -10,54 +12,33 @@ class UrlController {
     request: AuthRequest,
     response: Response
   ): Promise<void> => {
-    const user = request.user;
+    const userId = (request.payload as TokenPayload).id;
     const { url, description, customAlias } = request.body;
 
     if (!url) {
-      response.status(400).json({ error: "No URL provided" });
-      return;
+      throw new BadRequestError("No URL provided");
     }
 
     if (customAlias) {
-      if (customAlias.length > 16) {
-        response
-          .status(400)
-          .json({ error: "Custom alias must be less than 16 characters" });
-        return;
-      }
+      if (customAlias.length > 16)
+        throw new BadRequestError(
+          "Custom alias must be less than 16 characters"
+        );
 
-      if (customAlias.length < 4) {
-        response
-          .status(400)
-          .json({ error: "Custom alias must be at least 4 characters" });
-        return;
-      }
+      if (customAlias.length < 4)
+        throw new BadRequestError("Custom alias must be at least 4 characters");
 
-      if (customAlias.includes(" ")) {
-        response
-          .status(400)
-          .json({ error: "Custom alias must not contain spaces" });
-        return;
-      }
+      if (customAlias.includes(" "))
+        throw new BadRequestError("Custom alias must not contain spaces");
     }
 
-    try {
-      const data = await this.urlService.shortenUrl(
-        user.id,
-        url,
-        description,
-        customAlias
-      );
-      response.status(201).json({ message: "URL shortened", data: data });
-      return;
-    } catch (error: any) {
-      if (error.message === "Invalid URL")
-        response.status(400).json({ error: error.message });
-      else if (error.message === "Short code already exists")
-        response.status(400).json({ error: error.message });
-      else response.status(500).json({ error: error.message });
-      return;
-    }
+    const data = await this.urlService.shortenUrl(
+      userId,
+      url,
+      description,
+      customAlias
+    );
+    response.status(201).json({ message: "URL shortened", data: data });
   };
 
   public redirectUrl = async (
@@ -66,16 +47,8 @@ class UrlController {
   ): Promise<void> => {
     const { shortCode } = request.params;
 
-    try {
-      const url = await this.urlService.redirectUrl(shortCode);
-      response.status(301).redirect(url);
-      return;
-    } catch (error: any) {
-      if (error.message === "URL not found")
-        response.status(404).json({ error: error.message });
-      response.status(500).json({ error: error.message });
-      return;
-    }
+    const url = await this.urlService.redirectUrl(shortCode);
+    response.status(301).redirect(url);
   };
 
   public updateUrl = async (
@@ -83,101 +56,56 @@ class UrlController {
     response: Response
   ): Promise<any> => {
     // To update the original url and the description
-    const user = request.user;
+    const userId = (request.payload as TokenPayload).id;
     const { shortCode } = request.params;
     const { url, description } = request.body;
 
-    if (!url && !description) {
-      response.status(400).json({ error: "No data provided" });
-      return;
-    }
+    if (!url && !description)
+      throw new BadRequestError("No URL or description provided");
 
-    try {
-      const data = await this.urlService.updateUrl(
-        user.id,
-        shortCode,
-        url,
-        description
-      );
-      response.status(200).json({ message: "URL updated", data: data });
-      return;
-    } catch (error: any) {
-      if (error.mmessage === "URL not found")
-        response.status(404).json({ error: error.message });
-      else if (error.message === "Invalid URL")
-        response.status(400).json({ error: error.message });
-      else if (error.message === "Action not authorized")
-        response.status(403).json({ error: error.message });
-      else response.status(500).json({ error: error.message });
-      return;
-    }
+    const data = await this.urlService.updateUrl(
+      userId,
+      shortCode,
+      url,
+      description
+    );
+    response.status(200).json({ message: "URL updated", data: data });
   };
 
   public deleteUrl = async (
     request: AuthRequest,
     response: Response
   ): Promise<void> => {
-    const user = request.user;
+    const userId = (request.payload as TokenPayload).id;
     const { shortCode } = request.params;
 
-    try {
-      await this.urlService.deleteUrl(user.id, shortCode);
-      response.status(204).json({ message: "URL deleted" });
-      return;
-    } catch (error: any) {
-      if (error.message === "URL not found")
-        response.status(404).json({ error: error.message });
-      if (error.message === "Action not authorized")
-        response.status(403).json({ error: error.message });
-      else response.status(500).json({ error: error.message });
-      return;
-    }
+    await this.urlService.deleteUrl(userId, shortCode);
+    response.status(204).json({ message: "URL deleted" });
   };
 
   public getUserUrls = async (
     request: AuthRequest,
     response: Response
   ): Promise<void> => {
-    const user = request.user;
+    const userId = (request.payload as TokenPayload).id;
 
-    try {
-      const data = await this.urlService.getUserUrls(user.id);
-      response.status(200).json({ message: "All user urls", data: data });
-      return;
-    } catch (error: any) {
-      response.status(500).json({ error: error.message });
-      return;
-    }
+    const data = await this.urlService.getUserUrls(userId);
+    response.status(200).json({ message: "All user urls", data: data });
   };
 
   public asignTagToUrl = async (
     request: AuthRequest,
     response: Response
   ): Promise<void> => {
-    const user = request.user;
+    const userId = (request.payload as TokenPayload).id;
     const { shortCode, tagId } = request.params;
 
     if (isNaN(parseInt(tagId))) {
-      response.status(400).json({ error: "Invalid tag id" });
-      return;
+      throw new BadRequestError("Invalid tag id");
     }
 
-    try {
-      await this.urlService.asignTagToUrl(user.id, shortCode, parseInt(tagId));
-      response.status(200).json({ message: "Tag assigned to URL" });
-      return;
-    } catch (error: any) {
-      if (
-        error.message === "URL not found" ||
-        error.message === "Tag not found" ||
-        error.message === "Tag already assigned to this URL"
-      )
-        response.status(404).json({ error: error.message });
-      if (error.message === "Action not authorized")
-        response.status(403).json({ error: error.message });
-      else response.status(500).json({ error: error.message });
-      return;
-    }
+    await this.urlService.asignTagToUrl(userId, shortCode, parseInt(tagId));
+    response.status(200).json({ message: "Tag assigned to URL" });
   };
 }
 
