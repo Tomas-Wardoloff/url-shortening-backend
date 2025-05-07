@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 
-import { verifyToken } from "../utils/jwt.js";
+import { verifyToken, TokenPayload } from "../utils/jwt.js";
 
 interface AuthRequest extends Request {
-  payload?: any;
+  payload?: TokenPayload;
 }
 
 function authMiddleware(

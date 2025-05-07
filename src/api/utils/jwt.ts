@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 
 interface TokenPayload {
-  userId: number;
+  id: number;
   iat: number;
   exp: number;
 }
@@ -33,4 +33,4 @@ function verifyToken(token: string): TokenPayload {
   }
 }
 
-export { generateToken, verifyToken };
+export { generateToken, verifyToken, TokenPayload };
