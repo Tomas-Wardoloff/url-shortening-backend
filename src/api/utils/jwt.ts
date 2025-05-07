@@ -33,4 +33,4 @@ function verifyToken(token: string): TokenPayload {
   }
 }
 
-export { generateToken, verifyToken };
+export { generateToken, verifyToken, TokenPayload };

@@ -1,7 +1,8 @@
 import { Router } from "express";
 
-import { authMiddleware } from "../middlewares/authenticationMiddleware.js";
+import wrap from "../utils/wrap.js";
 import UrlController from "../controllers/urlController.js";
+import { authMiddleware } from "../middlewares/authenticationMiddleware.js";
 
 class UrlRouter {
   private router = Router();
@@ -12,23 +13,31 @@ class UrlRouter {
   }
 
   private initializeRoutes() {
-    this.router.post("/shorten", authMiddleware, this.urlController.shortenUrl);
-    this.router.get("/:shortCode", this.urlController.redirectUrl);
+    this.router.post(
+      "/shorten",
+      authMiddleware,
+      wrap(this.urlController.shortenUrl)
+    );
+    this.router.get("/:shortCode", wrap(this.urlController.redirectUrl));
     this.router.put(
       "/:shortCode",
       authMiddleware,
-      this.urlController.updateUrl
+      wrap(this.urlController.updateUrl)
     );
     this.router.delete(
       "/:shortCode",
       authMiddleware,
-      this.urlController.deleteUrl
+      wrap(this.urlController.deleteUrl)
     );
-    this.router.get("/user", authMiddleware, this.urlController.getUserUrls);
+    this.router.get(
+      "/user",
+      authMiddleware,
+      wrap(this.urlController.getUserUrls)
+    );
     this.router.post(
       "/:shortCode/tag/:tagId",
       authMiddleware,
-      this.urlController.asignTagToUrl
+      wrap(this.urlController.asignTagToUrl)
     );
   }
 

@@ -7,8 +7,12 @@ class UserRepository {
     return await prisma.user.findMany();
   }
 
-  public async getOne(email: string) {
+  public async getUserByEmail(email: string) {
     return await prisma.user.findUnique({ where: { email: email } });
+  }
+
+  public async getUserById(userId: number) {
+    return await prisma.user.findUnique({ where: { id: userId } });
   }
 
   public async create(

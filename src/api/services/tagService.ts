@@ -1,4 +1,9 @@
 import TagRepository from "../repositories/tagRepository.js";
+import {
+  NotFoundError,
+  ForbiddenError,
+  ConflictError,
+} from "../utils/error.js";
 
 class TagService {
   private tagRepository = new TagRepository();
@@ -6,7 +11,7 @@ class TagService {
   public async createTag(userId: number, name: string) {
     const existingTag = await this.tagRepository.getTagByName(userId, name);
 
-    if (existingTag) throw new Error("Tag already exists");
+    if (existingTag) throw new ConflictError("Tag already exists");
 
     const newTag = await this.tagRepository.create(userId, name);
     return {
@@ -27,10 +32,10 @@ class TagService {
 
   public async deleteTag(userId: number, tagId: number) {
     const tagToDelete = await this.tagRepository.getOne(tagId);
-    if (!tagToDelete) throw new Error("Tag not found");
+    if (!tagToDelete) throw new NotFoundError("Tag not found");
 
     if (tagToDelete.creatorId !== userId)
-      throw new Error("Action not authorized");
+      throw new ForbiddenError("Action not authorized");
 
     await this.tagRepository.delete(tagId);
     return;
