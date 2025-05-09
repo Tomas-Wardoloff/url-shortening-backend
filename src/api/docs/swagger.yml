@@ -1,0 +1,118 @@
+openapi: 3.0.4
+info:
+  title: URL Shortening API
+  description: |-
+    A RESTful API that allows users to shorten long URLs, manage tags, and perform operations related to URL management.
+
+    Some useful links:
+    - [The API repository](https://github.com/Tomas-Wardoloff/url-shortening-backend)
+  contact:
+    name: Tomas Wardoloff
+    email: tomaswardoloff@gmail.com
+  license:
+    name: GPL-3.0 license
+    url: https://github.com/Tomas-Wardoloff/url-shortening-backend/blob/main/LICENSE
+  version: 1.0.0
+
+servers:
+  - url: https://petstore3.swagger.io/api/v3
+
+tags:
+  - name: URLs
+    description: Operations about URLs
+  - name: Tags
+    description: Operations about Tags
+  - name: User
+    description: Operations about users
+
+paths:
+  /api/url/shorten:
+    post:
+      tags:
+        - URLs
+      summary: Shorten an URL
+      description: Create a short URL
+      requestBody:
+        description: Data required to shorten an URL
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  example: "https://example.com/some/long/url"
+                description:
+                  type: string
+                  example: "A description for the shortened URL"
+                customAlias:
+                  type: string
+                  example: "custom-alias"
+              required:
+                - url
+      responses:
+        "201":
+          description: URL successfully shortened
+          content:
+            aplication/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "URL shortened"
+                  data:
+                    url:
+                      type: string
+                      example: "https://example.com/some/long/url"
+                    shortCode:
+                      type: string
+                      example: "abc123"
+                    description:
+                      type: string
+                      example: "A description for the shortened URL"
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: "2023-10-01T12:00:00Z"
+        "400":
+          description: Bad request (e.g., Invalid URL or Custom alias already exists)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid URL"
+        "403":
+          description: Forbidden (e.g., Limit of links reached)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Limit of links reached"
+        "404":
+          description: Not found (e.g., User not found)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "User not found"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal server error"
