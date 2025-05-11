@@ -60,7 +60,8 @@ class UrlService {
     userId: number,
     shortCode: string,
     url?: string,
-    description?: string
+    description?: string,
+    customAlias?: string
   ) {
     const urlToUpdate = await this.urlRepository.getOne(shortCode);
     if (!urlToUpdate) throw new NotFoundError("URL not found");
@@ -69,6 +70,11 @@ class UrlService {
       throw new ForbiddenError("Action not authorized"); // check if the user is the owner of the url to update
 
     if (url && !validateUrl(url)) throw new BadRequestError("Invalid URL");
+
+    if (customAlias) {
+      const existingUrl = await this.urlRepository.getOne(customAlias);
+      if (existingUrl) throw new BadRequestError("Short code already exists");
+    }
 
     const updatedUrl = await this.urlRepository.update(urlToUpdate.id, {
       url: url,
@@ -94,6 +100,9 @@ class UrlService {
   }
 
   public async getUserUrls(userId: number) {
+    const user = await this.userRepository.getUserById(userId);
+    if (!user) throw new NotFoundError("User not found");
+
     const urls = await this.urlRepository.getUserUrl(userId);
     return {
       urls: urls.map((url) => ({

@@ -58,16 +58,17 @@ class UrlController {
     // To update the original url and the description
     const userId = (request.payload as TokenPayload).id;
     const { shortCode } = request.params;
-    const { url, description } = request.body;
+    const { url, description, customAlias } = request.body;
 
-    if (!url && !description)
+    if (!url && !description && !customAlias)
       throw new BadRequestError("No URL or description provided");
 
     const data = await this.urlService.updateUrl(
       userId,
       shortCode,
       url,
-      description
+      description,
+      customAlias
     );
     response.status(200).json({ message: "URL updated", data: data });
   };
