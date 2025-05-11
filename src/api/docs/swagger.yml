@@ -256,8 +256,8 @@ paths:
     delete:
       tags:
         - URLs
-      summary:
-      description:
+      summary: Delete an URL
+      description: Delete a shortened URL
       parameters:
         - name: shortCode
           in: path
@@ -296,6 +296,73 @@ paths:
                   error:
                     type: string
                     example: "URL not found"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal server error"
+  /api/url/user:
+    get:
+      tags:
+        - URLs
+      summary: Get all URLs for a user
+      description: Retrieve all shortened URLs for a specific user
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          description: The ID of the user to retrieve URLs for
+          schema:
+            type: string
+            example: "1564"
+      responses:
+        "200":
+          description: Retrieved URLs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "All user urls"
+                  data:
+                    type: object
+                    properties:
+                      urls:
+                        type: object
+                        properties:
+                          url:
+                            type: string
+                            example: "https://example.com/some/long/url"
+                          shortCode:
+                            type: string
+                            example: "abc123"
+                          description:
+                            type: string
+                            example: "A description for the shortened URL"
+                          createdAt:
+                            type: string
+                            format: date-time
+                            example: "2023-10-01T12:00:00Z"
+                          clicks:
+                            type: integer
+                            example: 100
+        "404":
+          description: Not found (e.g., User not found)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "User not found"
         "500":
           description: Internal server error
           content:
