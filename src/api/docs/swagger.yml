@@ -63,19 +63,21 @@ paths:
                     type: string
                     example: "URL shortened"
                   data:
-                    url:
-                      type: string
-                      example: "https://example.com/some/long/url"
-                    shortCode:
-                      type: string
-                      example: "abc123"
-                    description:
-                      type: string
-                      example: "A description for the shortened URL"
-                    createdAt:
-                      type: string
-                      format: date-time
-                      example: "2023-10-01T12:00:00Z"
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        example: "https://example.com/some/long/url"
+                      shortCode:
+                        type: string
+                        example: "abc123"
+                      description:
+                        type: string
+                        example: "A description for the shortened URL"
+                      createdAt:
+                        type: string
+                        format: date-time
+                        example: "2023-10-01T12:00:00Z"
         "400":
           description: Bad request (e.g., Invalid URL or Custom alias already exists)
           content:
@@ -106,6 +108,194 @@ paths:
                   error:
                     type: string
                     example: "User not found"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal server error"
+  /api/url/{shortCode}:
+    get:
+      tags:
+        - URLs
+      summary: Redirect to URL
+      description: Redirect to the original URL using the short code
+      parameters:
+        - name: shortCode
+          in: path
+          required: true
+          description: The short code of the URL to retrieve
+          schema:
+            type: string
+            example: "abc123"
+      responses:
+        "301":
+          description: Redirect to the original URL
+        "404":
+          description: Not found (e.g., URL not found)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "URL not found"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal server error"
+    put:
+      tags:
+        - URLs
+      summary: Update an URL
+      description: Update the details of a shortened URL
+      parameters:
+        - name: shortCode
+          in: path
+          required: true
+          description: The short code of the URL to retrieve
+          schema:
+            type: string
+      requestBody:
+        description: Data to update an URL
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  example: "https://example.com/some/long/url"
+                description:
+                  type: string
+                  example: "A description for the shortened URL"
+                customAlias:
+                  type: string
+                  example: "custom-alias"
+              required:
+                - url
+      responses:
+        "200":
+          description: URL successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "URL updated"
+                  data:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        example: "https://example.com/some/long/url"
+                      shortCode:
+                        type: string
+                        example: "abc123"
+                      description:
+                        type: string
+                        example: "A description for the shortened URL"
+                      createdAt:
+                        type: string
+                        format: date-time
+                        example: "2023-10-01T12:00:00Z"
+        "400":
+          description: Bad request (e.g., Invalid URL or Short code already exists)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid URL"
+        "403":
+          description: Forbidden (e.g., Action not authorized)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Action not authorized"
+        "404":
+          description: Not found (e.g., URL not found)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "URL not found"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal server error"
+    delete:
+      tags:
+        - URLs
+      summary:
+      description:
+      parameters:
+        - name: shortCode
+          in: path
+          required: true
+          description: The short code of the URL to retrieve
+          schema:
+            type: string
+      responses:
+        "204":
+          description: URL deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "URL deleted"
+        "403":
+          description: Forbidden (e.g., Action not authorized)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Action not authorized"
+        "404":
+          description: Not found (e.g., URL not found)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "URL not found"
         "500":
           description: Internal server error
           content:
