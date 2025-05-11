@@ -373,3 +373,75 @@ paths:
                   error:
                     type: string
                     example: "Internal server error"
+  /api/url/{shortCode}/tag/{tagId}:
+    post:
+      tags:
+        - URLs
+      summary: Add a tag to a URL
+      description: Add a tag to a shortened URL
+      parameters:
+        - name: shortCode
+          in: path
+          required: true
+          description: The short code of the URL to add the tag to
+          schema:
+            type: string
+            example: "abc123"
+        - name: tagId
+          in: path
+          required: true
+          description: The ID of the tag to add to the URL
+          schema:
+            type: string
+            example: "156"
+      responses:
+        "200":
+          description: Tag assigned to URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Tag assigned to URL"
+        "400":
+          description: Bad request (e.g., Invalid tag id)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid tag id"
+        "403":
+          description: Forbidden (e.g., Action not authorized or Tag already assigned)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Action not authorized"
+        "404":
+          description: Not found (e.g., URL or tag not found)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "URL not found"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal server error"
