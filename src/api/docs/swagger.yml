@@ -30,7 +30,6 @@ paths:
     post:
       tags:
         - URLs
-      summary: Shorten an URL
       description: Create a short URL
       requestBody:
         description: Data required to shorten an URL
@@ -122,7 +121,6 @@ paths:
     get:
       tags:
         - URLs
-      summary: Redirect to URL
       description: Redirect to the original URL using the short code
       parameters:
         - name: shortCode
@@ -158,7 +156,6 @@ paths:
     put:
       tags:
         - URLs
-      summary: Update an URL
       description: Update the details of a shortened URL
       parameters:
         - name: shortCode
@@ -256,7 +253,6 @@ paths:
     delete:
       tags:
         - URLs
-      summary: Delete an URL
       description: Delete a shortened URL
       parameters:
         - name: shortCode
@@ -310,7 +306,6 @@ paths:
     get:
       tags:
         - URLs
-      summary: Get all URLs for a user
       description: Retrieve all shortened URLs for a specific user
       parameters:
         - name: userId
@@ -377,7 +372,6 @@ paths:
     post:
       tags:
         - URLs
-      summary: Add a tag to a URL
       description: Add a tag to a shortened URL
       parameters:
         - name: shortCode
@@ -435,6 +429,191 @@ paths:
                   error:
                     type: string
                     example: "URL not found"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal server error"
+  /api/tag:
+    post:
+      tags:
+        - Tags
+      description: Create a new tag
+      requestBody:
+        description: Data required to create a tag
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "My Tag"
+              required:
+                - name
+      responses:
+        "201":
+          description: Tag created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Tag created"
+                  data:
+                    type: object
+                    properties:
+                      tag:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                            example: "My Tag"
+        "400":
+          description: Bad request (e.g., Tag name is required or Tag name to long)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Tag name is required"
+        "409":
+          description: Conflict (e.g., Tag already exists)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Tag already exists"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal server error"
+  /api/tag/my-tags:
+    get:
+      tags:
+        - Tags
+      description: Retrieve all tags for a specific user
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          description: The ID of the user to retrieve tags for
+          schema:
+            type: string
+            example: "1564"
+      responses:
+        "202":
+          description: Retrieved tags
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "All user tags"
+                  data:
+                    type: object
+                    properties:
+                      tags:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                            example: "My Tag"
+        "404":
+          description: Not found (e.g., User not found)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "User not found"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal server error"
+  /api/tag/{tagId}:
+    delete:
+      tags:
+        - Tags
+      description: Delete a tag
+      parameters:
+        - name: tagId
+          in: path
+          required: true
+          description: The ID of the tag to delete
+          schema:
+            type: string
+            example: "156"
+      responses:
+        "204":
+          description: Tag deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Tag deleted"
+        "400":
+          description: Bad request (e.g., Invalid tag id)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid tag id"
+        "403":
+          description: Forbidden (e.g., Action not authorized)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Action not authorized"
+        "404":
+          description: Not found (e.g., Tag not found)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Tag not found"
         "500":
           description: Internal server error
           content:
