@@ -624,3 +624,55 @@ paths:
                   error:
                     type: string
                     example: "Internal server error"
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        joinDate:
+          type: string
+          format: date-time
+        lastLogin:
+          type: string
+          format: date-time
+        isVerified:
+          type: boolean
+        limitLinks:
+          type: integer
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    URL:
+      type: object
+      properties:
+        id:
+          type: integer
+        url:
+          type: string
+        shortCode:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        clicks:
+          type: integer
