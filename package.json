@@ -7,7 +7,7 @@
   "scripts": {
     "build": "rimraf dist && npx prisma generate && npx tsc",
     "predev": "npm run build",
-    "dev": "concurrently \"npx tsc -w\" \"nodemon dist/server.js\""
+    "dev": "concurrently \"npx tsc -w\" \"nodemon --delay 1 dist/server.js\""
   },
   "repository": {
     "type": "git",
