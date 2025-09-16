@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var express_1 = require("express");
+var urlRouter_js_1 = require("./api/routers/urlRouter.js");
+var authRouter_js_1 = require("./api/routers/authRouter.js");
+var tagRouter_js_1 = require("./api/routers/tagRouter.js");
+var app = (0, express_1.default)();
+var authRouter = new authRouter_js_1.default().getRouter();
+var urlRouter = new urlRouter_js_1.default().getRouter();
+var tagRouter = new tagRouter_js_1.default().getRouter();
+app.use(express_1.default.json());
+app.use("/api/auth", authRouter);
+app.use("/api/url", urlRouter);
+app.use("/api/tag", tagRouter);
+exports.default = app;
