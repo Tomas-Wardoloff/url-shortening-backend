@@ -1,6 +1,6 @@
 import prisma from "../config/prisma.js";
 
-import { Links } from ".prisma/client";
+import { Links } from "@prisma/client";
 
 class UrlRepository {
   async create(originalUrl: string, userId: number, description?: string) {

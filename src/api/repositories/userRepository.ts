@@ -1,6 +1,6 @@
 import prisma from "../config/prisma.js";
 
-import { User } from ".prisma/client";
+import { User } from "@prisma/client";
 
 class UserRepository {
   public async getAll() {
